@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分帳終結者 | Split The Bill</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💸</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head> 
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>
+            <i class="fa-solid fa-money-bill-wave" style="color: var(--primary);"></i>            分帳終結者
+            <span>Cost Allocation System</span>
+        </h1>
+
+        <label>💰 餐點總金額 (Food)</label>
+        <input type="number" id="foodTotal" placeholder="輸入金額" value="">
+
+        <label>🍺 酒水總金額 (Alcohol)</label>
+        <input type="number" id="alcoholTotal" placeholder="沒喝酒填 0" value="0">
+
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="serviceCharge" checked>
+            <label for="serviceCharge" style="margin:0">加收 10% 服務費</label>
+        </div>
+    </div>
+
+    <div class="card">
+        <label>👥 分母名單</label>
+        <div class="friend-input-group">
+            <input type="text" id="newFriend" placeholder="輸入名字" style="margin:0">
+            <button class="btn btn-primary" style="width: 80px; margin:0;" onclick="addFriend()">
+                <i class="fa-solid fa-plus"></i> 新增
+            </button>
+        </div>
+
+        <div class="friend-list" id="friendList">
+            </div>
+
+        <button class="btn btn-primary" onclick="calculate()">
+            <i class="fa-solid fa-calculator"></i> 一鍵算錢
+        </button>
+
+        <div class="result-section" id="resultSection">
+            <h3>計算結果</h3>
+            <div id="resultList"></div>
+            <canvas id="billChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 關鍵修改：配合深色模式，把圖表文字變白 ---
+    Chart.defaults.color = '#ffffff';       // 文字變白
+    Chart.defaults.borderColor = '#555';    // 格線變深灰
+    // ------------------------------------------
+
+    // 資料結構：儲存所有朋友
+    let friends = [
+        { name: '我 (主揪)', drink: false },
+        { name: '同學 A', drink: true }
+    ];
+
+    // 初始化畫面
+    renderFriends();
+
+    // 1. 朋友列表管理
+    function addFriend() {
+        const nameInput = document.getElementById('newFriend');
+        const name = nameInput.value.trim();
+        if (!name) return;
+        friends.push({ name: name, drink: false });
+        nameInput.value = '';
+        renderFriends();
+    }
+
+    function removeFriend(index) {
+        friends.splice(index, 1);
+        renderFriends();
+    }
+
+    function toggleDrink(index) {
+        friends[index].drink = !friends[index].drink;
+        // 不需重新 render，狀態已變更
+    }
+
+    function renderFriends() {
+        const list = document.getElementById('friendList');
+        list.innerHTML = '';
+        friends.forEach((f, idx) => {
+            list.innerHTML += `
+                <div class="friend-item">
+                    <span>${f.name}</span>
+                    <div class="friend-options">
+                        <div style="display:flex; align-items:center;">
+                            <input type="checkbox" ${f.drink ? 'checked' : ''} onchange="toggleDrink(${idx})">
+                            <small style="margin-left:5px;">喝酒</small>
+                        </div>
+                        <button class="del-btn" onclick="removeFriend(${idx})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // 2. 核心計算邏輯 & Chart.js
+    let myChart = null;
+
+    function calculate() {
+        let food = parseFloat(document.getElementById('foodTotal').value) || 0;
+        let alcohol = parseFloat(document.getElementById('alcoholTotal').value) || 0;
+        const hasService = document.getElementById('serviceCharge').checked;
+
+        if (friends.length === 0) { alert('沒有人要付錢嗎？'); return; }
+
+        if (hasService) {
+            food = Math.round(food * 1.1);
+            alcohol = Math.round(alcohol * 1.1);
+        }
+
+        const foodPerPerson = Math.ceil(food / friends.length);
+        const drinkers = friends.filter(f => f.drink);
+        const alcoholPerPerson = drinkers.length > 0 ? Math.ceil(alcohol / drinkers.length) : 0;
+
+        const resultList = document.getElementById('resultList');
+        resultList.innerHTML = '';
+        const names = [];
+        const amounts = [];
+
+        friends.forEach(f => {
+            let total = foodPerPerson;
+            let note = '(純吃飯)';
+            if (f.drink) {
+                total += alcoholPerPerson;
+                note = '(含酒錢)';
+            }
+            
+            names.push(f.name);
+            amounts.push(total);
+
+            resultList.innerHTML += `
+                <div class="result-item">
+                    <span>${f.name} <small style="color:#aaa">${note}</small></span>
+                    <span class="money">$${total}</span>
+                </div>
+            `;
+        });
+
+        document.getElementById('resultSection').style.display = 'block';
+
+        const ctx = document.getElementById('billChart').getContext('2d');
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: names,
+                datasets: [{
+                    label: '應付金額',
+                    data: amounts,
+                    backgroundColor: amounts.map(a => a > foodPerPerson ? '#ff6b6b' : '#54a0ff'),
+                    borderWidth: 0 // 拿掉邊框比較好看
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: '費用分攤視覺化' }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' } // 讓格線也變半透明白
+                    },
+                    x: {
+                        grid: { display: false } // X軸不顯示格線比較乾淨
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
