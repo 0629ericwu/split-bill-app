@@ -1,0 +1,192 @@
+/* CSS 設定：質感深藍灰模式 (Soft Dark Mode) */
+:root { 
+    --primary: #54a0ff; /* 亮一點的天藍色，搭配深灰底很跳 */
+    --bg: #2f3640;      /* 背景：深藍灰色 (不再是死黑) */
+    --card: #353b48;    /* 卡片：稍微亮一點的灰 */
+    --text: #f5f6fa;    /* 文字：接近純白 */
+    --input-bg: #2f3640; /* 輸入框背景：跟大背景一樣，創造凹陷感 */
+    --border: #57606f;   /* 邊框：柔和的灰色 */
+}
+
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+    background-color: var(--bg); 
+    color: var(--text);
+    margin: 0; 
+    padding: 20px; 
+}
+
+.container { 
+    max-width: 600px; 
+    margin: 0 auto; 
+}
+
+.card { 
+    background: var(--card); 
+    padding: 25px; 
+    border-radius: 16px; 
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2); /* 陰影調整得柔和一點 */
+    margin-bottom: 20px; 
+    border: 1px solid rgba(255, 255, 255, 0.1); /* 很淡的邊框增加立體感 */
+}
+
+h1 { 
+    text-align: center; 
+    margin-bottom: 20px; 
+    font-size: 1.8rem; 
+    color: #ffffff; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+h1 span { 
+    font-size: 0.6em; 
+    display: block; 
+    color: #b2bec3; /* 副標題用淺銀色 */
+    font-weight: normal; 
+    margin-top: 5px; 
+}
+
+label { 
+    display: block; 
+    margin-bottom: 8px; 
+    font-weight: 600; 
+    color: #dcdde1; 
+}
+
+/* 輸入框樣式 */
+input[type="number"], input[type="text"] { 
+    width: 100%; 
+    padding: 12px; 
+    margin-bottom: 15px; 
+    background-color: var(--input-bg);
+    border: 1px solid var(--border);
+    color: white;
+    border-radius: 8px; 
+    box-sizing: border-box; 
+    font-size: 16px; 
+    transition: 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(84, 160, 255, 0.2);
+}
+
+/* 按鈕樣式 */
+.btn { 
+    width: 100%; 
+    padding: 14px; 
+    border: none; 
+    border-radius: 8px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-primary { 
+    background-color: var(--primary); 
+    color: white; 
+    margin-top: 10px; 
+}
+
+.btn-primary:hover { 
+    background-color: #2e86de; 
+    transform: translateY(-2px); /* 滑鼠移過去會稍微浮起來 */
+}
+
+.checkbox-wrapper { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 15px; 
+    padding: 12px; 
+    background: var(--input-bg); 
+    border-radius: 8px; 
+    border: 1px solid var(--border);
+}
+
+.checkbox-wrapper input { 
+    margin: 0; 
+    width: 20px; 
+    height: 20px; 
+    accent-color: var(--primary); /* 讓勾選框也是藍色的 */
+}
+
+/* 好友列表區 */
+.friend-input-group { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 15px; 
+}
+
+.friend-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+}
+
+.friend-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: #3f4656; /* 比卡片再亮一點點 */
+    border: 1px solid var(--border); 
+    padding: 12px 15px; 
+    border-radius: 8px; 
+    color: white;
+}
+
+.friend-options { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+}
+
+.del-btn { 
+    color: #ff6b6b; 
+    background: none; 
+    border: none; 
+    font-size: 1.2rem; 
+    cursor: pointer; 
+    transition: 0.2s;
+}
+.del-btn:hover {
+    transform: scale(1.2);
+}
+
+/* 結果區 */
+.result-section { 
+    display: none; 
+    margin-top: 20px; 
+    border-top: 2px dashed #57606f; 
+    padding-top: 20px; 
+}
+
+.result-item { 
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 1.1rem; 
+    padding: 10px 0; 
+    border-bottom: 1px solid #444; 
+}
+
+.money { 
+    color: #54a0ff; 
+    font-weight: bold; 
+}
+
+/* 圖表區塊特別處理 */
+/* 修改原本最下面的 canvas 設定 */
+canvas { 
+    margin-top: 20px; 
+    max-height: 300px; 
+    
+    /* 關鍵修改：拿掉白色背景，改成淡淡的半透明黑，融入感更好 */
+    background-color: rgba(0, 0, 0, 0.2); 
+    
+    border-radius: 8px;
+    padding: 10px;
+}
